@@ -1,10 +1,18 @@
 import sys
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QTableWidget,
-    QTableWidgetItem, QVBoxLayout, QWidget,
-    QLineEdit, QPushButton, QLabel, QMessageBox
+    QApplication,
+    QMainWindow,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    QLineEdit,
+    QPushButton,
+    QLabel,
+    QMessageBox,
 )
 from database import database_connection, get_data
+
 
 class DatabaseViewer(QMainWindow):
     def __init__(self, connection):
@@ -23,10 +31,12 @@ class DatabaseViewer(QMainWindow):
         layout.addWidget(self.label)
 
         self.table_input = QLineEdit()
+        self.table_input.setFixedHeight(100)
         self.table_input.setPlaceholderText("Введите имя таблицы")
         layout.addWidget(self.table_input)
 
         self.load_button = QPushButton("Загрузить данные")
+        self.load_button.setFixedHeight(50)
         self.load_button.clicked.connect(self.load_table_data)
         layout.addWidget(self.load_button)
 
@@ -43,6 +53,7 @@ class DatabaseViewer(QMainWindow):
             columns, rows = get_data(table_name, self.connection)
             self.display_data(columns, rows)
         except Exception as e:
+            self.connection.rollback()
             QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить данные:\n{e}")
 
     def display_data(self, columns, rows):
@@ -57,12 +68,13 @@ class DatabaseViewer(QMainWindow):
 
         self.table_widget.resizeColumnsToContents()
 
+
 if __name__ == "__main__":
     connection = database_connection()
     app = QApplication(sys.argv)
     window = DatabaseViewer(connection=connection)
     window.show()
-    exit_code = app.exec()      
-    connection.close()          
+    exit_code = app.exec()
+    connection.close()
     print("Соединение закрыто!")
-    sys.exit(exit_code)         
+    sys.exit(exit_code)
